@@ -2,11 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { updateDoc, doc } from 'firebase/firestore';
+import { db } from '../config/firebaseConfig';
+import { getAuth } from 'firebase/auth'; // Import getAuth
 
 const EditEventScreen = () => {
     const navigation = useNavigation();
     const route = useRoute();
-    const { event } = route.params; // Get the event data passed from the Dashboard
+    const { event } = route.params;
 
     const [eventName, setEventName] = useState(event?.eventName || '');
     const [description, setDescription] = useState(event?.description || '');
@@ -25,10 +28,31 @@ const EditEventScreen = () => {
         }
     }, [event]);
 
-    const handleUpdateEvent = () => {
-        // In the next step, we'll implement updating this data in Firebase
-        console.log('Updating event:', { id: event.id, eventName, description, location, date, time });
-        navigation.goBack();
+    const handleUpdateEvent = async () => {
+        try {
+            const auth = getAuth(); // Get the auth instance
+            const userId = auth.currentUser?.uid; // Get the current user's ID
+
+            if (!event?.id) {
+                setErrorMessage('Event ID is missing.');
+                return;
+            }
+
+            const eventDocRef = doc(db, 'events', event.id);
+            await updateDoc(eventDocRef, {
+                eventName: eventName,
+                description: description,
+                location: location,
+                date: date,
+                time: time,
+                userId: userId, // Update the userId as well
+            });
+            console.log('Event updated successfully!');
+            navigation.goBack();
+        } catch (error) {
+            setErrorMessage('Error updating event: ' + error.message);
+            console.error('Error updating event:', error);
+        }
     };
 
     return (

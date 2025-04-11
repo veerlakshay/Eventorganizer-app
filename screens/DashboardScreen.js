@@ -1,9 +1,9 @@
 // screens/DashboardScreen.js
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, FlatList } from 'react-native';
+import { View, Text, Button, StyleSheet, FlatList, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { getAuth, signOut } from 'firebase/auth';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, deleteDoc, doc, addDoc } from 'firebase/firestore'; // Import addDoc
 import { db } from '../config/firebaseConfig';
 
 const DashboardScreen = () => {
@@ -17,6 +17,38 @@ const DashboardScreen = () => {
             navigation.replace('SignIn');
         } catch (error) {
             console.error('Logout error:', error);
+        }
+    };
+
+    const handleDeleteEvent = async (eventId) => {
+        try {
+            await deleteDoc(doc(db, 'events', eventId));
+            console.log('Event deleted successfully!');
+        } catch (error) {
+            console.error('Error deleting event:', error);
+        }
+    };
+
+    const handleToggleFavorite = async (eventId, isFavorite) => {
+        const auth = getAuth();
+        const userId = auth.currentUser?.uid;
+        if (!userId) return;
+
+        try {
+            if (isFavorite) {
+                // Remove from favorites (Implementation will depend on how you store favorites)
+                console.log(`Removing event ${eventId} from favorites for user ${userId}`);
+                // You'll need to implement the removal logic here
+            } else {
+                // Add to favorites
+                await addDoc(collection(db, 'favoriteEvents'), {
+                    userId: userId,
+                    eventId: eventId,
+                });
+                console.log(`Adding event ${eventId} to favorites for user ${userId}`);
+            }
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
         }
     };
 
@@ -59,7 +91,24 @@ const DashboardScreen = () => {
                             title="Edit"
                             onPress={() => navigation.navigate('EditEvent', { event: item })}
                         />
-                        {/* We'll add the delete button here in the next step */}
+                        <Button
+                            title="Delete"
+                            onPress={() =>
+                                Alert.alert(
+                                    'Confirm Delete',
+                                    'Are you sure you want to delete this event?',
+                                    [
+                                        { text: 'Cancel', style: 'cancel' },
+                                        { text: 'Delete', style: 'destructive', onPress: () => handleDeleteEvent(item.id) },
+                                    ],
+                                    { cancelable: true }
+                                )
+                            }
+                        />
+                        <Button
+                            title="Favorite" // Placeholder for favorite toggle
+                            onPress={() => handleToggleFavorite(item.id, false)} // Initially, assume not favorite
+                        />
                     </View>
                 )}
             />

@@ -3,30 +3,32 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { addDoc, collection } from 'firebase/firestore';
-import { db } from '../config/firebaseConfig'; // Import the Firestore instance
+import { db } from '../config/firebaseConfig';
+import { getAuth } from 'firebase/auth'; // Import getAuth
 
 const CreateEventScreen = () => {
     const navigation = useNavigation();
     const [eventName, setEventName] = useState('');
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
-    const [date, setDate] = useState(''); // You might want to use a DatePicker in a real app
-    const [time, setTime] = useState(''); // You might want to use a TimePicker
+    const [date, setDate] = useState('');
+    const [time, setTime] = useState('');
     const [errorMessage, setErrorMessage] = useState(null);
 
     const handleCreateEvent = async () => {
         try {
+            const auth = getAuth(); // Get the auth instance
+            const userId = auth.currentUser?.uid; // Get the current user's ID
+
             const docRef = await addDoc(collection(db, 'events'), {
                 eventName: eventName,
                 description: description,
                 location: location,
                 date: date,
                 time: time,
-                // Add the current user's ID (you'll need to get this from Firebase Auth)
-                userId: auth.currentUser.uid
+                userId: userId, // Add the current user's ID
             });
             console.log('Event created with ID: ', docRef.id);
-            // After successful creation, navigate back to the Dashboard
             navigation.goBack();
         } catch (error) {
             setErrorMessage('Error creating event: ' + error.message);
