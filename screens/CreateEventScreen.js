@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // Added useEffect import
 import {
     View,
     Text,
@@ -12,12 +12,12 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { addDoc, collection } from 'firebase/firestore';
-import { db, getAuth } from '../config/firebaseConfig';
+import { getAuth } from 'firebase/auth';
+import { db } from '../config/firebaseConfig';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-const CreateEventScreen = () => {
-    const navigation = useNavigation();
+const CreateEventScreen = ({ navigation }) => {
     const [eventName, setEventName] = useState('');
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
@@ -26,6 +26,21 @@ const CreateEventScreen = () => {
     const [errorMessage, setErrorMessage] = useState(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
+
+    // Set navigation options
+    useEffect(() => {
+        navigation.setOptions({
+            title: 'Create Event',
+            headerLeft: () => (
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={{ marginLeft: 15 }}
+                >
+                    <Ionicons name="arrow-back" size={24} color="#6C63FF" />
+                </TouchableOpacity>
+            ),
+        });
+    }, [navigation]);
 
     const handleCreateEvent = async () => {
         if (!eventName || !description || !location) {
@@ -80,15 +95,10 @@ const CreateEventScreen = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Ionicons name="arrow-back" size={24} color="#6C63FF" />
-                    </TouchableOpacity>
-                    <Text style={styles.title}>Create New Event</Text>
-                    <View style={{ width: 24 }} /> {/* Spacer for alignment */}
-                </View>
-
+            <ScrollView
+                contentContainerStyle={styles.scrollContainer}
+                showsVerticalScrollIndicator={false}
+            >
                 {errorMessage && (
                     <View style={styles.errorContainer}>
                         <Text style={styles.errorText}>{errorMessage}</Text>
@@ -189,17 +199,6 @@ const styles = StyleSheet.create({
     scrollContainer: {
         padding: 20,
         paddingBottom: 40,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 30,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#2D3748',
     },
     errorContainer: {
         backgroundColor: '#FFF5F5',

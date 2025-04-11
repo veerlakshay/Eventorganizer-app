@@ -12,13 +12,12 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { updateDoc, doc } from 'firebase/firestore';
-import { db, getAuth } from '../config/firebaseConfig';
+import { getAuth } from 'firebase/auth';
+import { db } from '../config/firebaseConfig';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-const EditEventScreen = () => {
-    const navigation = useNavigation();
-    const route = useRoute();
+const EditEventScreen = ({ navigation, route }) => {
     const { event } = route.params;
 
     const [eventName, setEventName] = useState(event?.eventName || '');
@@ -30,7 +29,21 @@ const EditEventScreen = () => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
 
+    // Set navigation options
     useEffect(() => {
+        navigation.setOptions({
+            title: 'Edit Event',
+            headerLeft: () => (
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={{ marginLeft: 15 }}
+                >
+                    <Ionicons name="arrow-back" size={24} color="#6C63FF" />
+                </TouchableOpacity>
+            ),
+        });
+
+        // Initialize form with event data
         if (event) {
             setEventName(event.eventName);
             setDescription(event.description);
@@ -45,7 +58,7 @@ const EditEventScreen = () => {
                 setTime(timeDate);
             }
         }
-    }, [event]);
+    }, [event, navigation]);
 
     const handleUpdateEvent = async () => {
         if (!eventName || !description || !location) {
@@ -82,8 +95,8 @@ const EditEventScreen = () => {
                 [{ text: 'OK', onPress: () => navigation.goBack() }]
             );
         } catch (error) {
-            setErrorMessage('Error updating event: ' + error.message);
             console.error('Error updating event:', error);
+            setErrorMessage(`Error updating event: ${error.message}`);
         }
     };
 
@@ -106,15 +119,10 @@ const EditEventScreen = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
         >
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Ionicons name="arrow-back" size={24} color="#6C63FF" />
-                    </TouchableOpacity>
-                    <Text style={styles.title}>Edit Event</Text>
-                    <View style={{ width: 24 }} /> {/* Spacer for alignment */}
-                </View>
-
+            <ScrollView
+                contentContainerStyle={styles.scrollContainer}
+                showsVerticalScrollIndicator={false}
+            >
                 {errorMessage && (
                     <View style={styles.errorContainer}>
                         <Text style={styles.errorText}>{errorMessage}</Text>
@@ -214,10 +222,7 @@ const EditEventScreen = () => {
                                 {
                                     text: 'Delete',
                                     style: 'destructive',
-                                    onPress: () => {
-                                        // Add your delete logic here
-                                        navigation.goBack();
-                                    }
+                                    onPress: () => navigation.goBack()
                                 },
                             ]
                         );
@@ -238,17 +243,6 @@ const styles = StyleSheet.create({
     scrollContainer: {
         padding: 20,
         paddingBottom: 40,
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 30,
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#2D3748',
     },
     errorContainer: {
         backgroundColor: '#FFF5F5',
@@ -297,6 +291,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 20,
     },
+    buttonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
     deleteButton: {
         backgroundColor: 'white',
         padding: 18,
@@ -305,11 +304,6 @@ const styles = StyleSheet.create({
         marginTop: 15,
         borderWidth: 1,
         borderColor: '#E53E3E',
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: 'bold',
     },
     deleteButtonText: {
         color: '#E53E3E',

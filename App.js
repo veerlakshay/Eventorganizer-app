@@ -63,7 +63,11 @@ export default function App() {
             component={CreateEventScreen}
             options={{
               title: 'Create Event',
-              headerBackTitle: 'Cancel'
+              headerBackTitle: 'Cancel',
+              headerTintColor: '#6C63FF',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              }
             }}
           />
           <Stack.Screen
@@ -71,7 +75,11 @@ export default function App() {
             component={EditEventScreen}
             options={{
               title: 'Edit Event',
-              headerBackTitle: 'Back'
+              headerBackTitle: 'Back',
+              headerTintColor: '#6C63FF',
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              }
             }}
           />
           <Stack.Screen
