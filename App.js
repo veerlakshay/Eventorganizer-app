@@ -6,7 +6,8 @@ import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import CreateEventScreen from './screens/CreateEventScreen';
-import EditEventScreen from './screens/EditEventScreen'; // Import EditEventScreen
+import EditEventScreen from './screens/EditEventScreen';
+import FavoriteEventsScreen from './screens/FavoriteEventsScreen'; // Import FavoriteEventsScreen
 import { View, Text } from 'react-native';
 
 const Stack = createNativeStackNavigator();
@@ -35,10 +36,15 @@ export default function App() {
           component={CreateEventScreen}
           options={{ title: 'Create Event' }}
         />
-        <Stack.Screen // Add the EditEvent screen to the navigator
+        <Stack.Screen
           name="EditEvent"
           component={EditEventScreen}
           options={{ title: 'Edit Event' }}
+        />
+        <Stack.Screen // Add the FavoriteEvents screen to the navigator
+          name="FavoriteEvents"
+          component={FavoriteEventsScreen}
+          options={{ title: 'Favorite Events' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

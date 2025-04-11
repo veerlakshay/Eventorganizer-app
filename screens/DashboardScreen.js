@@ -3,13 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, StyleSheet, FlatList, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { getAuth, signOut } from 'firebase/auth';
-import { collection, query, where, onSnapshot, deleteDoc, doc, addDoc } from 'firebase/firestore'; // Import addDoc
+import { collection, query, where, onSnapshot, deleteDoc, doc, addDoc, getDocs } from 'firebase/firestore'; // Import getDocs
 import { db } from '../config/firebaseConfig';
 
 const DashboardScreen = () => {
     const navigation = useNavigation();
     const auth = getAuth();
     const [events, setEvents] = useState([]);
+    const [favoriteEventIds, setFavoriteEventIds] = useState([]); // Track favorite event IDs
 
     const handleLogout = async () => {
         try {
@@ -29,23 +30,36 @@ const DashboardScreen = () => {
         }
     };
 
-    const handleToggleFavorite = async (eventId, isFavorite) => {
+    const handleToggleFavorite = async (eventId) => {
         const auth = getAuth();
         const userId = auth.currentUser?.uid;
         if (!userId) return;
 
         try {
-            if (isFavorite) {
-                // Remove from favorites (Implementation will depend on how you store favorites)
-                console.log(`Removing event ${eventId} from favorites for user ${userId}`);
-                // You'll need to implement the removal logic here
+            // Check if the event is already a favorite
+            const favoriteEventsRef = collection(db, 'favoriteEvents');
+            const q = query(favoriteEventsRef, where('userId', '==', userId), where('eventId', '==', eventId));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                // Remove from favorites
+                const favoriteEventDocId = querySnapshot.docs[0].id;
+                await deleteDoc(doc(db, 'favoriteEvents', favoriteEventDocId));
+                console.log(`Event ${eventId} removed from favorites.`);
+                // Update state
+                setFavoriteEventIds(prevIds => prevIds.filter(id => id !== eventId));
+
+
             } else {
                 // Add to favorites
                 await addDoc(collection(db, 'favoriteEvents'), {
                     userId: userId,
                     eventId: eventId,
                 });
-                console.log(`Adding event ${eventId} to favorites for user ${userId}`);
+                console.log(`Event ${eventId} added to favorites.`);
+                // Update state
+                setFavoriteEventIds(prevIds => [...prevIds, eventId]);
+
             }
         } catch (error) {
             console.error('Error toggling favorite:', error);
@@ -67,6 +81,27 @@ const DashboardScreen = () => {
         return () => unsubscribe();
     }, []);
 
+    // Fetch initial favorite event IDs
+    useEffect(() => {
+        const fetchInitialFavoriteIds = async () => {
+            const auth = getAuth();
+            const userId = auth.currentUser?.uid;
+            if (!userId) return;
+
+            try {
+                const favoriteEventsRef = collection(db, 'favoriteEvents');
+                const q = query(favoriteEventsRef, where('userId', '==', userId));
+                const querySnapshot = await getDocs(q);
+                const initialFavoriteIds = querySnapshot.docs.map(doc => doc.data().eventId);
+                setFavoriteEventIds(initialFavoriteIds);
+            } catch (error) {
+                console.error('Error fetching initial favorite IDs:', error);
+            }
+        };
+
+        fetchInitialFavoriteIds();
+    }, []);
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Welcome to the Dashboard!</Text>
@@ -75,6 +110,10 @@ const DashboardScreen = () => {
                 onPress={() => navigation.navigate('CreateEvent')}
             />
             <Button title="Logout" onPress={handleLogout} />
+            <Button
+                title="Favorite Events"
+                onPress={() => navigation.navigate('FavoriteEvents')}
+            />
 
             <Text style={styles.subtitle}>Your Events:</Text>
             <FlatList
@@ -106,8 +145,8 @@ const DashboardScreen = () => {
                             }
                         />
                         <Button
-                            title="Favorite" // Placeholder for favorite toggle
-                            onPress={() => handleToggleFavorite(item.id, false)} // Initially, assume not favorite
+                            title={favoriteEventIds.includes(item.id) ? 'Unfavorite' : 'Favorite'}
+                            onPress={() => handleToggleFavorite(item.id)}
                         />
                     </View>
                 )}
