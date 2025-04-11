@@ -21,6 +21,21 @@ const FavoriteEventsScreen = () => {
     const [favoriteEvents, setFavoriteEvents] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
 
+    // Set navigation options
+    useEffect(() => {
+        navigation.setOptions({
+            title: 'Favorite Events',
+            headerLeft: () => (
+                <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    style={{ marginLeft: 15 }}
+                >
+                    <Ionicons name="arrow-back" size={24} color="#6C63FF" />
+                </TouchableOpacity>
+            ),
+        });
+    }, [navigation]);
+
     const fetchFavoriteEvents = async () => {
         const auth = getAuth();
         const userId = auth.currentUser?.uid;
@@ -154,14 +169,6 @@ const FavoriteEventsScreen = () => {
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.container}>
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Ionicons name="arrow-back" size={24} color="#6C63FF" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Favorite Events</Text>
-                    <View style={{ width: 24 }} />
-                </View>
-
                 <FlatList
                     data={favoriteEvents}
                     renderItem={renderEventItem}
@@ -197,18 +204,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F8F9FA',
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 20,
-        paddingBottom: 10,
-    },
-    headerTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#2D3748',
     },
     listContent: {
         paddingHorizontal: 20,
