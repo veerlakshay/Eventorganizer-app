@@ -5,7 +5,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import DashboardScreen from './screens/DashboardScreen';
-import CreateEventScreen from './screens/CreateEventScreen'; // Import CreateEventScreen
+import CreateEventScreen from './screens/CreateEventScreen';
+import EditEventScreen from './screens/EditEventScreen'; // Import EditEventScreen
 import { View, Text } from 'react-native';
 
 const Stack = createNativeStackNavigator();
@@ -30,9 +31,14 @@ export default function App() {
           options={{ title: 'Dashboard', headerRight: () => null }}
         />
         <Stack.Screen
-          name="CreateEvent" // Add the CreateEvent screen to the navigator
+          name="CreateEvent"
           component={CreateEventScreen}
           options={{ title: 'Create Event' }}
+        />
+        <Stack.Screen // Add the EditEvent screen to the navigator
+          name="EditEvent"
+          component={EditEventScreen}
+          options={{ title: 'Edit Event' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

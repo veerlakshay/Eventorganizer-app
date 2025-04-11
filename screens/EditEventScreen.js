@@ -1,42 +1,39 @@
-// screens/CreateEventScreen.js
-import React, { useState } from 'react';
+// screens/EditEventScreen.js
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from '../config/firebaseConfig'; // Import the Firestore instance
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-const CreateEventScreen = () => {
+const EditEventScreen = () => {
     const navigation = useNavigation();
-    const [eventName, setEventName] = useState('');
-    const [description, setDescription] = useState('');
-    const [location, setLocation] = useState('');
-    const [date, setDate] = useState(''); // You might want to use a DatePicker in a real app
-    const [time, setTime] = useState(''); // You might want to use a TimePicker
+    const route = useRoute();
+    const { event } = route.params; // Get the event data passed from the Dashboard
+
+    const [eventName, setEventName] = useState(event?.eventName || '');
+    const [description, setDescription] = useState(event?.description || '');
+    const [location, setLocation] = useState(event?.location || '');
+    const [date, setDate] = useState(event?.date || '');
+    const [time, setTime] = useState(event?.time || '');
     const [errorMessage, setErrorMessage] = useState(null);
 
-    const handleCreateEvent = async () => {
-        try {
-            const docRef = await addDoc(collection(db, 'events'), {
-                eventName: eventName,
-                description: description,
-                location: location,
-                date: date,
-                time: time,
-                // Add the current user's ID (you'll need to get this from Firebase Auth)
-                userId: auth.currentUser.uid
-            });
-            console.log('Event created with ID: ', docRef.id);
-            // After successful creation, navigate back to the Dashboard
-            navigation.goBack();
-        } catch (error) {
-            setErrorMessage('Error creating event: ' + error.message);
-            console.error('Error creating event:', error);
+    useEffect(() => {
+        if (event) {
+            setEventName(event.eventName);
+            setDescription(event.description);
+            setLocation(event.location);
+            setDate(event.date);
+            setTime(event.time);
         }
+    }, [event]);
+
+    const handleUpdateEvent = () => {
+        // In the next step, we'll implement updating this data in Firebase
+        console.log('Updating event:', { id: event.id, eventName, description, location, date, time });
+        navigation.goBack();
     };
 
     return (
         <ScrollView style={styles.container}>
-            <Text style={styles.title}>Create New Event</Text>
+            <Text style={styles.title}>Edit Event</Text>
             {errorMessage && <Text style={styles.error}>{errorMessage}</Text>}
             <TextInput
                 style={styles.input}
@@ -69,7 +66,7 @@ const CreateEventScreen = () => {
                 value={time}
                 onChangeText={setTime}
             />
-            <Button title="Create Event" onPress={handleCreateEvent} />
+            <Button title="Update Event" onPress={handleUpdateEvent} />
         </ScrollView>
     );
 };
@@ -97,4 +94,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default CreateEventScreen;
+export default EditEventScreen;
