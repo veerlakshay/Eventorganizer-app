@@ -53,7 +53,7 @@ export default function App() {
             name="Home"
             component={DashboardScreen}
             options={{
-              title: 'My Events',
+              title: 'OCCASIO',
               headerRight: () => null,
               headerBackVisible: false
             }}
