@@ -1,5 +1,5 @@
-// App.js
 import React from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignInScreen from './screens/SignInScreen';
@@ -7,46 +7,80 @@ import SignUpScreen from './screens/SignUpScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import CreateEventScreen from './screens/CreateEventScreen';
 import EditEventScreen from './screens/EditEventScreen';
-import FavoriteEventsScreen from './screens/FavoriteEventsScreen'; // Import FavoriteEventsScreen
-import { View, Text } from 'react-native';
+import FavoriteEventsScreen from './screens/FavoriteEventsScreen';
+import { LogBox } from 'react-native';
+
+// Ignore specific warnings
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+]);
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="SignIn">
-        <Stack.Screen
-          name="SignIn"
-          component={SignInScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="SignUp"
-          component={SignUpScreen}
-          options={{ title: 'Create Account' }}
-        />
-        <Stack.Screen
-          name="Home"
-          component={DashboardScreen}
-          options={{ title: 'Dashboard', headerRight: () => null }}
-        />
-        <Stack.Screen
-          name="CreateEvent"
-          component={CreateEventScreen}
-          options={{ title: 'Create Event' }}
-        />
-        <Stack.Screen
-          name="EditEvent"
-          component={EditEventScreen}
-          options={{ title: 'Edit Event' }}
-        />
-        <Stack.Screen // Add the FavoriteEvents screen to the navigator
-          name="FavoriteEvents"
-          component={FavoriteEventsScreen}
-          options={{ title: 'Favorite Events' }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="SignIn"
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: '#F8F9FA',
+            },
+            headerTintColor: '#6C63FF',
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
+        >
+          <Stack.Screen
+            name="SignIn"
+            component={SignInScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SignUp"
+            component={SignUpScreen}
+            options={{
+              title: 'Create Account',
+              headerBackTitle: 'Back'
+            }}
+          />
+          <Stack.Screen
+            name="Home"
+            component={DashboardScreen}
+            options={{
+              title: 'My Events',
+              headerRight: () => null,
+              headerBackVisible: false
+            }}
+          />
+          <Stack.Screen
+            name="CreateEvent"
+            component={CreateEventScreen}
+            options={{
+              title: 'Create Event',
+              headerBackTitle: 'Cancel'
+            }}
+          />
+          <Stack.Screen
+            name="EditEvent"
+            component={EditEventScreen}
+            options={{
+              title: 'Edit Event',
+              headerBackTitle: 'Back'
+            }}
+          />
+          <Stack.Screen
+            name="FavoriteEvents"
+            component={FavoriteEventsScreen}
+            options={{
+              title: 'Favorites',
+              headerBackTitle: 'Back'
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
