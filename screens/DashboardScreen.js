@@ -11,17 +11,19 @@ const DashboardScreen = () => {
     const handleLogout = async () => {
         try {
             await signOut(auth);
-            // After successful logout, navigate back to the SignIn screen
-            navigation.replace('SignIn'); // Use replace to avoid going back to Dashboard
+            navigation.replace('SignIn');
         } catch (error) {
             console.error('Logout error:', error);
-            // Optionally display an error message to the user
         }
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Welcome to the Dashboard!</Text>
+            <Button
+                title="Create New Event"
+                onPress={() => navigation.navigate('CreateEvent')} // Navigate to CreateEvent screen
+            />
             <Button title="Logout" onPress={handleLogout} />
             {/* We will add the list of events here later */}
         </View>
