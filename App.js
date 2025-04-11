@@ -2,13 +2,16 @@ import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { LogBox } from 'react-native';
+
+// Screens
 import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import CreateEventScreen from './screens/CreateEventScreen';
 import EditEventScreen from './screens/EditEventScreen';
 import FavoriteEventsScreen from './screens/FavoriteEventsScreen';
-import { LogBox } from 'react-native';
+import EventDetailScreen from './screens/EventDetailScreen';
 
 // Ignore specific warnings
 LogBox.ignoreLogs([
@@ -76,6 +79,14 @@ export default function App() {
             component={FavoriteEventsScreen}
             options={{
               title: 'Favorites',
+              headerBackTitle: 'Back'
+            }}
+          />
+          <Stack.Screen
+            name="EventDetail"
+            component={EventDetailScreen}
+            options={{
+              title: 'Event Details',
               headerBackTitle: 'Back'
             }}
           />
